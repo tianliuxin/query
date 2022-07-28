@@ -7,6 +7,3 @@ from .io import (
 from .core import (
     Query,SQuery
 )
-
-# 初始化sqlite内存数据库
-sq = SQuery(con=sqlite3.connect(":memory:"))

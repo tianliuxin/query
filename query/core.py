@@ -3,6 +3,7 @@ import sqlite3
 from .io import read_sql,DataFrame
 from .udf import init_udfs
 
+
 class BaseQuery:
     '''Query基类,暂时没有实现,后期改进时可能会进行实现'''
     pass
@@ -36,23 +37,26 @@ class Query(BaseQuery):
         df = read_sql(sql=sql,con=self.con,chunksize=chunksize)
         return df
     
-    def register(self,df:DataFrame,name:str,if_exits="replace",dtype=None):
+    def register(self,name:str,df:DataFrame,if_exits="replace",dtype=None):
         df.to_sql(name=name,con=self.con,if_exists=if_exits,dtype=dtype,index=False)
     
 
 class SQuery(Query):
     '''sqlite作为数据库的Query对象,支持udf等'''
 
-    def __init__(self,con:sqlite3.Connection,is_initial_udfs=True):
+    def __init__(self,con=None,is_initial_udfs=True):
         '''
         Parameters
         ----------
         con:
-            sqlite的Connection对象
+            sqlite的Connection对象,或者None对象,当为None,则返回构建sqlite内存数据库
         is_initial_udfs:
             是否初始化自定义的常用udf,默认是True
         '''
+        if con is None:
+            con = sqlite3.connect(":memory:")
         super().__init__(con)
+
         self.udfs = {} # 记录注册的udf函数
         if is_initial_udfs:
             init_udfs(self)
@@ -104,6 +108,15 @@ class SQuery(Query):
         cursor = self.con.execute("select `sql` from sqlite_master where type='table' and tbl_name='{}'".format(name))
         stmt = cursor.fetchone()[0]
         return stmt
+    
+    def close(self):
+        self.con.close()
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self,exc_type,exc_value,exc_tb):
+        self.close()
 
         
 
