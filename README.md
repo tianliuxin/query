@@ -30,6 +30,20 @@ print(sq.tables())
 print(sq.show_create_table("df"))
 ```
 
+# sqlite3语法
+```sql
+
+日期函数
+datetime
+date
+time
+strftime(fmt,dt,offset...)
+
+聚合函数
+group_concat
+
+窗口函数
+```
 # TODO
 - [ ] udf_agg必须跟原定义的一样,需要传递类(定义了step和finalize方法),能否将这个构造为函数,合并到udf里
 - [ ] duckdb替代sqlite,优化计算速度(暂时不行,duckdb存在太多bug,结果不准确!!!若存在其他更好的计算引擎也可以尝试)
